@@ -4,23 +4,37 @@
  *
  * @see http://robo.li/
  */
+
+use Robo\Common\TaskIO;
+use Robo\Output;
+
 class RoboFile extends \Robo\Tasks
 {
-    function hello($opt = ['silent|s' => false])
+    /**
+     * Displays the introduction, more information and welcome ascii art
+     */
+    function info()
     {
-        if (!$opt['silent']) $this->say("Hello, world");
+        //Cat run/saucey.txt
+        $this->taskExec('cat ./bin/saucey.txt')
+            ->run();
     }
 
+    /**
+     * Starts apps/get.saucey.io in foreground at http://127.0.0.1:9987, kill with 'Control + C'
+     */
     public function serve()
     {
-        //Starts app/ in background
-        $this->taskServer(9987)
+        //Serve .
+        $this->taskServer(8000)
             ->host('127.0.0.1')
-            ->dir('app')
+            ->dir(".")
             ->run();
-
     }
 
+    /**
+     * Initializes saucey project via Composer install/update, npm global installs, and copying over behat.yml from vendor/saucey/framework
+     */
     public function init()
     {
         //Install the dependancies/requirements through composer
@@ -31,19 +45,19 @@ class RoboFile extends \Robo\Tasks
         $this->taskComposerUpdate('./composer.phar')
             ->run();
 
-        //Install Wienre
+        //Install Wienre globally via npm
         $this->taskExec('sudo npm -g install weinre')
             ->run();
 
-        //Install PhantomJS
-        $this->taskExec('npm install phantomjs')
+        //Install PhantomJS globally via npm
+        $this->taskExec('sudo npm -g install phantomjs')
             ->run();
 
-        //Copy over master yaml
-        $this->taskExec('cp -r ./vendor/saucey/framework/ymls/behat.yml.master.dist ./behat.yml')
+        //Copy over behat.yml.master.dist to root as behat.yml
+        $this->taskExec('cp -r ./vendor/saucey/framework/ymls/behat.yml.master.dist ./behat.yml.master.dist')
             ->run();
 
-        //Copy over bin
+        //Copy over bin from vendor/saucey/framework
         $this->taskExec('cp -R ./vendor/saucey/framework/bin/* ./bin/')
             ->run();
 
@@ -54,175 +68,349 @@ class RoboFile extends \Robo\Tasks
             ->run();
 
         //Make directory for reports
-        $this->taskExec('mkdir reports/')
-            ->run();
-
-        //Make directory for ADSCR726
-        $this->taskExec('mkdir reports/ADSCR726/')
+        $this->taskFileSystemStack()
+            ->mkdir('reports')
+            ->mkdir('screenshots')
+            ->mkdir('var/tasks')
             ->run();
 
         //View saucey introduction
-        $this->taskExec('cat ./run/saucey.txt')
+        $this->taskExec('cat ./bin/saucey.txt')
             ->run();
     }
 
+    /**
+     * Runs Composer update, refreshes bin/ and vendor/
+     */
+    public function update()
+    {
+        //Update the dependancies/requirements through composer
+        $this->taskComposerUpdate('./composer.phar')
+            ->run();
+
+    }
+
+    /**
+     * Starts Winery (Weinre) in foreground, at $host $port
+     */
     public function winery()
     {
-        //Starts Weinre for mac in background, @http://127.0.0.1:7890
-        $this->taskExec('weinre --verbose true --debug true --boundHost 127.0.0.1 --httpPort 7890')
+        $host = $this->ask('What host?');
+        $port = $this->ask('What port?');
+        //Starts winery (weinre) in foreground, at $host $port
+        $this->taskExec("weinre --verbose true --debug true --boundHost {$host} --httpPort {$port}")
             ->run();
     }
 
-
-    public function wineryTest()
+    /**
+     * Starts Selenium for mac in foreground, at default http://localhost:4444/wd/hub/static/resource/hub.html
+     */
+    public function seleniumStart()
     {
-        //Start server in background
-        $this->taskServer(9987)
-            ->dir('app')
-            ->background()
-            ->run();
-
-        //Start Selenium
-        $this->taskExec('sh ./run/start_selenium.sh')
-            ->arg('mac')
-            ->background()
-            ->idleTimeout(10)
-            ->run();
-
-        //Starts Weinre for mac in background, @http://127.0.0.1:7890
-        $this->taskExec('weinre --boundHost 127.0.0.1 --httpPort 7890')
-            ->background()
-            ->idleTimeout(10)
-            ->run();
-
-        //Starts tests in parallel
-        $this->taskParallelExec()
-            ->process('./bin/behat --tags "@metrics" -p local_chrome --rerun')
-            ->process('./bin/behat --tags "@initial" -p local_chrome --rerun')
-            ->process('./bin/behat --tags "@adcade"')
-            ->idleTimeout(10)
-            ->run();
-
-        //Save report
-        $this->taskExec("mv ./reports/saucey_report.html ./reports/saucey_report_winery_test.html && open ./reports/saucey_report_winery_test.html")
-            ->run();
-    }
-
-    public function seleniumMac()
-    {
-        //Starts Selenium for mac
-        $this->taskExec('sh ./run/start_selenium.sh')
+        //Starts Selenium
+        $this->taskExec('sh ./bin/start_selenium.sh')
             ->arg('mac')
             ->run();
     }
 
-    public function phantom()
+    /**
+     * Kills Selenium at default http://localhost:4444/wd/hub/static/resource/hub.html
+     */
+    public function seleniumKill()
+    {
+        //Kills Selenium
+        $this->taskExec("open http://localhost:4444/selenium-server/driver/?cmd=shutDownSeleniumServer")
+            ->background()
+            ->run();
+    }
+
+    /**
+     * Starts PhantomJS for mac in foreground, at default http://localhost:4444/wd/hub/static/resource/hub.html
+     *
+     * * @param int $port Port for PhantomJS
+     */
+    public function phantomjs($port)
     {
         //Starts PhantomJS for mac
-        $this->taskExec(' /usr/local/bin/phantomjs --webdriver=8643')
+        $this->taskExec("/usr/local/bin/phantomjs --webdriver={$port}")
             ->run();
     }
 
-    public function test()
+
+    /**
+     * Asks for and obtains $folder, $project, $feature, and $shortName. Makes directories, copies and touches files.
+     *
+     * @internal param string $folder
+     * @internal param string $project
+     * @internal param string $feature
+     * @internal param string $robo
+     */
+    public function sauceyBundle()
     {
-        //Start server in background
-        $this->taskServer(9987)
-            ->dir('app')
-            ->host('127.0.0.1')
+        /**
+         * @var string $folder
+         */
+        $folder = $this->ask("Which folder will this test(s) reside in? [string]");
+        /**
+         * @var string $project
+         */
+        $project = $this->ask("What is the name of the project? [string]");
+        /**
+         * @var string $feature
+         */
+        $feature = $this->ask("What is the name of the feature file? [string]");
+        /**
+         * @var string $shortName
+         */
+        $shortName = $this->ask("What is the short name for your robo function? [string]");
+
+        //Makes directories in feature/ and touches feature file
+        $this->taskFileSystemStack()
+            ->mkdir("./features/{$folder}")
+            ->mkdir("./features/{$folder}/{$project}")
+            ->mkdir("./reports/{$folder}/{$project}")
+            ->touch("./features/{$folder}/{$project}/{$feature}.feature")
+            ->run();
+
+        //Copies over Reporting/Run scripts
+        $this->taskExec("sleep 10 && cp -R ./config/ ./features/{$folder}/{$project}/")
+            ->run();
+
+        //Removes Services
+        $this->taskExec("rm -rf ./features/{$folder}/{$project}/service.json")
+            ->run();
+
+        //Replaces items in Reporting.php
+        $this->taskReplaceInFile("./features/{$folder}/{$project}/Reporting.php")
+            ->from('project')
+            ->to($project)
+            ->from('feature')
+            ->to($feature)
+            ->run();
+
+        //Replaces items in Run.sh
+        $this->taskReplaceInFile("./features/{$folder}/{$project}/Run.sh")
+            ->from('function')
+            ->to($shortName)
+            ->run();
+    }
+
+    /**
+     * Asks for and obtains $project, $feature, and $number to update the Run.sh in feature directory. INIT, initializes script. RUN, runs script.
+     *
+     * @internal param string $folder
+     * @internal param string $project
+     * @internal param string $feature
+     * @internal param string $number
+     */
+    public function sauceyOverdose()
+    {
+        $action = $this->ask("Would you like to init or run overdose? You have to init before running! [init | run]");
+        $folder = $this->ask("Which folder does the test live in? [string]");
+        $project = $this->ask("Which project? [string]");
+        $number = $this->ask("How many times do you want to run this test? [int]");
+
+        if ($action == 'init') {
+            //Replaces number value in Run.sh
+            $this->taskReplaceInFile("./features/{$folder}/{$project}/Run.sh")
+                ->from('((n=0;n<1;n++))')
+                ->to("((n=0;n<{$number};n++))")
+                ->run();
+        }
+        if ($action == 'run') {
+            $confirm = $this->ask("Are you sure you want to run your suite {$number} times? [y | n]");
+            if ($confirm == 'y') {
+                //Confirm then run
+                $this->taskExec("sh ./features/{$folder}/{$project}/Run.sh")
+                    ->run();
+            }
+            if ($confirm == 'n') {
+                //Confirm
+                $this->taskExec("exit")
+                    ->run();
+            }
+
+        }
+    }
+
+    /**
+     * Asks and obtains $project, $feature, $browser and $isMetrics status to run Behat, Reporting, Weinre, Selenium and PhantomJS
+     *
+     * @internal param string $folder
+     * @internal param string $project
+     * @internal param string $feature
+     * @internal param string $isMetrics
+     */
+    public function tipsyTest()
+    {
+        $project = $this->ask("What is the name of the parent folder in which this test resides? [string]");
+        $feature = $this->ask("What is the '@tag' for feature? [string -- without '@']");
+        $browser = $this->ask("Which browser is this to be test this in? [string]");
+        $isMetrics = $this->ask("Is metrics testing involved? [y | n]");
+
+        //Starts PhantomJS
+        $this->taskExec("/usr/local/bin/phantomjs --webdriver=8643")
             ->background()
             ->run();
 
-        //Start Selenium
-        $this->taskExec('sh ./run/start_selenium.sh')
-            ->arg('mac')
+        //Starts Selenium
+        $this->taskExec("sh ./run/start_selenium.sh mac")
             ->background()
-            ->idleTimeout(10)
             ->run();
 
-        //Starts Weinre for mac in background, @http://127.0.0.1:7890
-        $this->taskExec('weinre --boundHost 127.0.0.1 --httpPort 7890')
-            ->background()
-            ->idleTimeout(10)
-            ->run();
+        //Starts drivers, tests in parallel
+        if ($isMetrics == 'y') {
+            $metrics = $this->ask("What is the '@tag' for metrics? [string]");
+            $host = $this->ask("What host? [string]");
+            $port = $this->ask("What port? [string]");
+
+            //Starts Winery
+            $this->taskExec("weinre --verbose true --debug true --boundHost {$host} --httpPort {$port}")
+                ->background()
+                ->run();
+
+            //Starts tests in parallel
+            $this->taskParallelExec()
+                ->process("sh ./run/saucey.sh tipsy '{$metrics} chrome'")
+                ->process("sh ./run/saucey.sh tipsy '{$feature} {$browser}'")
+                ->idleTimeout(10)
+                ->run();
+
+            $this->taskExec("open http://localhost:4444/selenium-server/driver/?cmd=shutDownSeleniumServer")
+                ->background()
+                ->run();
+
+            $this->taskExec("mv ./reports/saucey_report.html ./reports/{$project}/{$feature}.html")
+                ->background()
+                ->idleTimeout(10)
+                ->run();
+
+            $this->taskExec("php ./feature/{$project}/{$feature}/Reporting.php")
+                ->background()
+                ->idleTimeout(10)
+                ->run();
+        }
+
+        if ($isMetrics == 'n') {
+            $this->taskParallelExec()
+                //->process('sh ./run/start_selenium.sh mac')
+                ->process("sh ./run/saucey.sh tipsy '{$feature} {$browser}'")
+                ->idleTimeout(10)
+                ->run();
+
+            $this->taskExec("open http://localhost:4444/selenium-server/driver/?cmd=shutDownSeleniumServer")
+                ->background()
+                ->run();
+
+            $this->taskExec("mv ./reports/saucey_report.html ./reports/{$project}/{$feature}.html")
+                ->background()
+                ->idleTimeout(10)
+                ->run();
+
+            $this->taskExec("php ./feature/{$project}/{$feature}/Reporting.php")
+                ->background()
+                ->idleTimeout(10)
+                ->run();
+        }
+    }
+
+    /**
+     * Asks and obtains $project, $feature, $env and $browser to run Behat, Reporting and SauceLabs
+     *
+     * @internal param string $folder
+     * @internal param string $project
+     * @internal param string $env
+     * @internal param string $browser
+     */
+    public function drunkTest()
+    {
+        $project = $this->ask("What is the name of the parent folder in which this test resides? [string]");
+        $feature = $this->ask("What is the '@tag' for feature? [string -- without '@']");
+        $env = $this->ask("What environment is this to be test this on? [string]");
+        $browser = $this->ask("Which browser is this to be test this in? [string]");
 
         //Starts tests in parallel
         $this->taskParallelExec()
-            ->process('./bin/behat --tags "@metrics" -p local_chrome')
-            ->process('./bin/behat --tags "@initial"  -p local_chrome')
+            ->process("sh ./run/saucey.sh drunk '{$feature} {$env} {$browser}'")
             ->idleTimeout(10)
             ->run();
 
-        //Copy and move over report
-        $this->taskExec('mv ./reports/saucey_report.html ./reports/saucey_report_basic_test.html && open ./reports/saucey_report_basic_test.html')
-            ->run();
-    }
-
-    public function sauceyTest()
-    {
-        //Starts Selenium for mac in background, with default to Firefox, can use Chrome & Safari with '-p local_chrome' and '-p local_safari' respectively
-        $this->taskExec('sh ./run/start_selenium.sh mac')
+        $this->taskExec("mv ./reports/saucey_report.html ./reports/{$project}/{$feature}.html")
             ->background()
+            ->idleTimeout(10)
             ->run();
 
-        //Runs tag
-        $this->taskExec('./bin/behat --tags @saucey')
-            ->run();
-
-        //Opens reports/saucey_report.html
-        $this->taskExec('open ./reports/saucey_report.html')
-            ->run();
-    }
-
-    public function sauceyTipsy($browser)
-    {
-        //Starts Selenium for mac in background, with default to Firefox, can use Chrome & Safari with '-p local_chrome' and '-p local_safari' respectively
-        $this->taskExec('sh ./run/start_selenium.sh mac')
+        $this->taskExec("php ./feature/{$project}/{$feature}/Reporting.php")
             ->background()
-            ->run();
-
-        //Starts behat with $tags $browser
-        $this->taskExec('sh ./run/saucey.sh tipsy')
-            ->args($browser)
-            ->run();
-
-        //Opens reports/saucey_report.html
-        $this->taskExec('open ./reports/saucey_report.html')
+            ->idleTimeout(10)
             ->run();
     }
 
-    public function sauceyDrunk($env)
+    /**
+     * Connects instance of sauce_connect to SauceLabs API, requires api_key and username
+     *
+     * @internal param string $un
+     * @internal param string $key
+     */
+    public function sauceyConnect()
     {
-        //Starts behat with $tags $browser
-        $this->taskExec('sh ./run/saucey.sh drunk')
-            ->args($env)
+        $un = $this->ask("What is your username?");
+        $key = $this->ask("What is your api-key?");
+        $unkey = "{$un}:{$key}";
+        $un_key = "{$un} {$key}";
+
+        $this->taskReplaceInFile('./vendor/saucey/framework/ymls/behat.yml.master.dist')
+            ->from('username:api-key')
+            ->to($unkey)
             ->run();
 
-        //Opens reports/saucey_report.html
-        $this->taskExec('open ./reports/saucey_report.html')
+        $this->taskReplaceInFile('./behat.yml')
+            ->from('username:api-key')
+            ->to($unkey)
+            ->run();
+
+        $this->taskExec('./bin/sauce_config')
+            ->arg($un_key)
             ->run();
     }
 
-    public function sauceyIo($msg)
+    /**
+     * Starts a Sauce Tunnel, allowing testing on the local host against hosted selenium, with all SauceLabs functions
+     *
+     * @internal param string $un
+     * @internal param string $key
+     */
+    public function sauceyTunnel()
+    {
+        $un = $this->ask("What is your username?");
+        $key = $this->ask("What is your api-key?");
+        $un_key = "{$un} {$key}";
+
+        $this->taskExec('./vendor/sauce/connect/bin/sauce_connect')
+            ->arg($un_key)
+            ->run();
+    }
+
+    /**
+     * For saucey developers, push and pull from framework GitHub with this task command
+     *
+     * @internal param string $un
+     * @internal param string $key
+     */
+    public function sauceyShove($msg)
     {
         //Copy over development yaml
         $this->taskExec('cp -r ./behat.yml vendor/saucey/framework/ymls/behat.yml.master.dist')
             ->run();
 
-        //Push to remote frameworks
+        //Pull from remotes for saucey
         $this->taskGitStack()
-            ->dir('./vendor/saucey/framework')
-            ->add('-A')
-            ->commit('robo saucey:work is shoving to all remote:master:')
-            ->push('origin', 'master')
-            ->run();
-
-        //Pull from remotes
-        $this->taskGitStack()
+            ->dir('.')
             ->pull('origin', 'master')
             ->pull('origin', 'develop')
             ->run();
 
-        //Push to remotes
+        //Push to remotes for saucey
         $this->taskGitStack()
             ->dir('.')
             ->add('-A')
@@ -231,66 +419,168 @@ class RoboFile extends \Robo\Tasks
             ->run();
     }
 
-    public function sauceyFramework()
+    # ADCADE TASKS
+
+    /**
+     * Tests against campaign: tor_fragrance_2015
+     */
+    public function adcadeCampaign()
     {
-        //Copy over development yaml
-        $this->taskExec('cp -r ./behat.yml vendor/saucey/framework/ymls/behat.yml.master.dist')
-            ->run();
-
-        //Push to remote framework
-        $this->taskGitStack()
-            ->dir('./vendor/saucey/framework')
-            ->add('-A')
-            ->commit('robo saucey:work is shoving to all remote:master:framework')
-            ->push('origin', 'master')
-            ->run();
-    }
-
-    public function sauceyWiki()
-    {
-        //Pull wiki
-        $this->taskGitStack()
-            ->dir('./saucey.wiki/')
-            ->pull('origin', 'master')
-            ->run();
-
-        //Push wiki
-        $this->taskGitStack()
-            ->dir('./saucey.wiki/')
-            ->add('-A')
-            ->commit('robo saucey:wiki is shoving to all remote:master:wiki')
-            ->push('origin', 'master')
-            ->run();
-    }
-
-    public function sauceyADSCR726()
-    {
-        //Starts Weinre for mac in background, @http://127.0.0.1:7890
-        $this->taskExec('weinre --boundHost 127.0.0.1 --httpPort 7890')
-            ->background()
-            ->idleTimeout(10)
-            ->run();
-
-        //Start selenium
-        $this->taskExec('sh ./run/start_selenium.sh')
-            ->arg('mac')
-            ->background()
-            ->idleTimeout(10)
-            ->run();
-
-        //Starts tests in parallel
+        // Tests Metrics by testing the app locally and verifying metrics locally
         $this->taskParallelExec()
-            ->process('./bin/behat --tags "@adscr736Metrics" -p local_chrome')
-            ->process('./bin/behat --tags "@adscr736Ad"')
+            ->process('./bin/behat --tags "@Regression_TOR_Fragrance_APR15"')
+            ->process('./bin/behat --tags "@Regression_TOR_Fragrance_APR15_Metrics" -p local_chrome')
             ->printed(true)
             ->run();
 
-        //Moves saucey_report.html to ADSCR726 folder
-        $this->taskExec("mv ./reports/saucey_report.html ./reports/ADSCR726/saucey_report.html")
+        // Tests against ie8 for Backup image
+        $this->taskExec('./bin/behat --tags "@IE_Backup_TOR_Fragrance_APR15" -p sauce_windows_ie8')
+            ->printed(true)
             ->run();
 
-        //Adds timestamp and ID to saucey_report.html
-        $this->taskExec("php features/ADSCR-726/ModFile.php")
+        // Tests against Windows Chrome
+        $this->taskExec('./bin/behat --tags "@Compatibility_TOR_Fragrance_APR15" -p sauce_windows_chrome')
+            ->printed(true)
+            ->run();
+
+        // Tests against i
+        $this->taskExec('./bin/behat --tags "@IE_Backup_TOR_Fragrance_APR15" -p sauce_windows_ie8')
+            ->printed(true)
+            ->run();
+
+        $this->taskExec('./bin/behat --tags "@Compatibility_TOR_Fragrance_APR15" -p sauce_windows_chrome')
+            ->printed(true)
+            ->run();
+
+        $this->taskExec('./bin/behat --tags "@Compatibility_TOR_Fragrance_APR15" -p sauce_windows_firefox')
+            ->printed(true)
+            ->run();
+
+        $this->taskExec('./bin/behat --tags "@Compatibility_TOR_Fragrance_APR15" -p sauce_mac_safari')
+            ->printed(true)
+            ->run();
+
+        $this->taskExec('./bin/behat --tags "@Compatibility_TOR_Fragrance_APR15" -p sauce_mac_chrome')
+            ->printed(true)
+            ->run();
+
+        $this->taskExec('./bin/behat --tags "@TOR_Fragrance_1032x1100_Tablet" -p sauce_ios_tablet_landscape')
+            ->printed(true)
+            ->run();
+
+        $this->taskExec('./bin/behat --tags "@TOR_Fragrance_1032x1100_Tablet" -p sauce_android_tablet_landscape')
+            ->printed(true)
+            ->run();
+
+        $this->taskExec('./bin/behat --tags "@TOR_Fragrance_1032x1100_Tablet" -p sauce_ios_tablet')
+            ->printed(true)
+            ->run();
+
+        $this->taskExec('./bin/behat --tags "@TOR_Fragrance_1032x1100_Tablet" -p sauce_android_tablet')
+            ->printed(true)
+            ->run();
+    }
+
+    /**
+     * Tests against ADSCR-726, tnbr_pushdown_marquee
+     */
+    public function adcadeADSCR726()
+    {
+        // Tests Metrics by testing the app locally and verifying metrics locally
+        $this->taskParallelExec()
+            ->process('./bin/behat --tags "@ADSCR_726_Desktop" -p local_chrome && sleep 3')
+            ->process('./bin/behat --tags "@ADSCR_726_Desktop_Metrics" -p local_chrome')
+            ->printed(true)
+            ->run();
+
+        // Moves file over and renames with timestamp
+        $this->taskExec('php ./features/adcade/ADSCR_726/Reporting.php')
+            ->run();
+    }
+
+    /**
+     * Runs ADSCR-726 suite +10,000 times
+     */
+    public function adcadeADSCR726Overdose()
+    {
+        // Runs overdose.sh for ADSCR_726
+        $this->taskExec('sh ./features/adcade/ADSCR_726/Run.sh')
+            ->printed(true)
+            ->run();
+    }
+
+    /**
+     * Tests HelpCenter against local browsers
+     */
+    public function adcadeHelpCenterLocal()
+    {
+        // Tests HelpCenter Locally
+        $this->taskExec('./bin/behat --suite=help_center')
+            ->printed(true)
+            ->run();
+
+        // Moves Report
+        $this->taskExec('php ./features/adcade/Help_Center/Reporting.php')
+            ->run();
+    }
+
+    /**
+     * Tests HelpCenter against SauceLabs browsers and environments
+     */
+    public function adcadeHelpCenterCloud()
+    {
+        // Tests HelpCenter against Mac, Chrome
+        $this->taskExec('./bin/behat --suite=help_center -p sauce_mac_chrome')
+            ->printed(true)
+            ->run();
+
+        // Moves Report
+        $this->taskExec('php ./features/adcade/Help_Center/Reporting.php')
+            ->run();
+
+        // Tests HelpCenter against Mac, Safari
+        $this->taskExec('./bin/behat --suite=help_center -p sauce_mac_safari')
+            ->printed(true)
+            ->run();
+
+        // Moves Report
+        $this->taskExec('php ./features/adcade/Help_Center/Reporting.php')
+            ->run();
+
+        // Tests HelpCenter against Windows, IE9
+        $this->taskExec('./bin/behat --suite=help_center -p sauce_windows_ie9')
+            ->printed(true)
+            ->run();
+
+        // Moves Report
+        $this->taskExec('php ./features/adcade/Help_Center/Reporting.php')
+            ->run();
+
+        // Tests HelpCenter against Windows, Firefox
+        $this->taskExec('./bin/behat --suite=help_center -p sauce_windows_firefox')
+            ->printed(true)
+            ->run();
+
+        // Moves Report
+        $this->taskExec('php ./features/adcade/Help_Center/Reporting.php')
+            ->run();
+
+        // Tests HelpCenter against iOS, Safari, Landscape
+        $this->taskExec('./bin/behat --suite=help_center -p sauce_ios_tablet_landscape')
+            ->printed(true)
+            ->run();
+
+        // Moves Report
+        $this->taskExec('php ./features/adcade/Help_Center/Reporting.php')
+            ->run();
+
+        // Tests HelpCenter against Android, Native, Landscape
+        $this->taskExec('./bin/behat --suite=help_center -p sauce_android_tablet_landscape')
+            ->printed(true)
+            ->run();
+
+        // Moves Report
+        $this->taskExec('php ./features/adcade/Help_Center/Reporting.php')
             ->run();
     }
 
