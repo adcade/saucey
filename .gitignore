@@ -20,7 +20,7 @@ Temporary Items
 .apdisk
 composer.phar
 composer.lock
-vendor/
+#vendor/ Commiting this temporarily
 bin/
 behat.yml
 *.iml
