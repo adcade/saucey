@@ -58,7 +58,7 @@ class RoboFile extends \Robo\Tasks
             ->run();
 
         //Make behat.yml from copy
-        $this->taskExec('cp -r ./ymls/behat.yml.master.dist ./behat.yml')
+        $this->taskExec('cp -r ./vendor/saucey/framework/ymls/behat.yml.master.dist ./behat.yml')
             ->run();
 
         //Copy over bin from vendor/saucey/framework
