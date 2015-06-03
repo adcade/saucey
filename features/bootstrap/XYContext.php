@@ -19,14 +19,13 @@ use Symfony\Component\Finder\Finder;
 
 class XYContext implements Context, SnippetAcceptingContext
 {
-    private $aut;
 
     /**
-     * @param $aut
+     *
      */
-    public function __construct($aut)
+    public function __construct()
     {
-        $this->aut = $aut;
+
     }
 
     /**

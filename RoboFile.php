@@ -57,6 +57,10 @@ class RoboFile extends \Robo\Tasks
         $this->taskExec('cp -r ./vendor/saucey/framework/ymls/behat.yml.master.dist ./behat.yml.master.dist')
             ->run();
 
+        //Make behat.yml from copy
+        $this->taskExec('cp -r ./ymls/behat.yml.master.dist ./behat.yml')
+            ->run();
+
         //Copy over bin from vendor/saucey/framework
         $this->taskExec('cp -R ./vendor/saucey/framework/bin/* ./bin/')
             ->run();
@@ -584,4 +588,16 @@ class RoboFile extends \Robo\Tasks
             ->run();
     }
 
+    /**
+     * Tests against ADSCR-726, tnbr_pushdown_marquee
+     */
+    public function adcadeDeloitteCrisis2015()
+    {
+        // Tests Metrics by testing the app locally and verifying metrics locally
+        $this->taskParallelExec()
+            ->process('./bin/behat --tags "@DeloitteCrisis_2015_300x250"')
+            ->process('./bin/behat --tags "@DeloitteCrisis_2015_300x250_Metrics" -p local_chrome')
+            ->printed(true)
+            ->run();
+    }
 }

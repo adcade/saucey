@@ -13,7 +13,7 @@ Feature: Testing browser functionality
     And I wait 3 seconds until I see "Build Better HTML5 Ads Faster"
     Then I should see more than 2 "div" in the 1st "body"
     And I should see less than 80 "div" in the 1st "body"
-    And I should see 78 "div" in the 1st "body"
+    And I should see 71 "div" in the 1st "body"
     When I click on the 2nd "ul li a" element
     Then I should see "For Designers and Developers"
     When I follow "Sign Up Now!"
