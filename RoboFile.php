@@ -175,7 +175,6 @@ class RoboFile extends \Robo\Tasks
             ->mkdir("./reports/{$folder}/{$project}")
             ->touch("./features/{$folder}/{$project}/{$feature}.feature")
             ->run();
-
         //Copies over Reporting/Run scripts
         $this->taskExec("sleep 10 && cp -R ./config/ ./features/{$folder}/{$project}/")
             ->run();
@@ -245,7 +244,7 @@ class RoboFile extends \Robo\Tasks
      * @internal param string $feature
      * @internal param string $isMetrics
      */
-    public function tipsyTest()
+    public function testTipsy()
     {
         $project = $this->ask("What is the name of the parent folder in which this test resides? [string]");
         $feature = $this->ask("What is the '@tag' for feature? [string -- without '@']");
@@ -326,7 +325,7 @@ class RoboFile extends \Robo\Tasks
      * @internal param string $env
      * @internal param string $browser
      */
-    public function drunkTest()
+    public function testDrunk()
     {
         $project = $this->ask("What is the name of the parent folder in which this test resides? [string]");
         $feature = $this->ask("What is the '@tag' for feature? [string -- without '@']");

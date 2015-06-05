@@ -11,23 +11,8 @@ Feature: Deloitte Crisis 2015
     And I wait 3 seconds for "body" element
     And I wait for 7 seconds
     #Move Left
-    When I tap "860" x "260" coordinates
+    When I tap "540" x "280" coordinates
     And I wait for 3 seconds
-    #Move Left
-    When I tap "890" x "260" coordinates
-    And I wait for 3 seconds
-    #Play Video
-    When I tap "950" x "200" coordinates
-    And I wait for 30 seconds
-    #Open Disclaimer
-    And I tap "1060" x "350" coordinates
-    And I wait for 3 seconds
-    #Close Disclaimer
-    And I tap "1060" x "350" coordinates
-    #Test Drag Functionality
-    And I initiate drag at "830" x "330" coordinates
-    And I release drag at "1030" x "330" coordinates
-    And I wait for 5 seconds
 
 
 
