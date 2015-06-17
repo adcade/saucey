@@ -53,12 +53,17 @@ class RoboFile extends \Robo\Tasks
         $this->taskExec('sudo npm -g install phantomjs')
             ->run();
 
-        //Copy over behat.yml.master.dist to root as behat.yml
-        $this->taskExec('cp -r ./vendor/saucey/framework/ymls/behat.yml.master.dist ./behat.yml.master.dist')
+        //.BASH_PROFILE adjustments
+        //Add t as alias to .bash_profile
+        $this->taskExec('echo "alias t=\'python ~/Sites/saucey/vendor/saucey/framework/var/tasks/t/t.py --task-dir ~/Sites/saucey/var/tasks --list tasks\'" >> ~/.bash_profile')
             ->run();
 
-        //Make behat.yml from copy
-        $this->taskExec('cp -r ./vendor/saucey/framework/ymls/behat.yml.master.dist ./behat.yml')
+        //Source .bash_profile
+        $this->taskExec('source ~/.bash_profile')
+            ->run();
+
+        //Copy over behat.yml.master.dist to root as behat.yml
+        $this->taskExec('cp ./vendor/saucey/framework/ymls/behat.yml.master.dist ./behat.yml')
             ->run();
 
         //Copy over bin from vendor/saucey/framework
@@ -71,11 +76,21 @@ class RoboFile extends \Robo\Tasks
             ->pull('origin', 'develop')
             ->run();
 
-        //Make directory for reports
+        //Make directory for reports, screenshots and tasks
         $this->taskFileSystemStack()
             ->mkdir('reports')
             ->mkdir('screenshots')
             ->mkdir('var/tasks')
+            ->run();
+
+        //Temporary -- Function to move context from src/Temporary_Context -- MinkContext.php
+        $this->taskFileSystemStack()
+            ->copy('vendor/saucey/framework/src/Behat/MinkContext.php', 'vendor/behat/mink-extension/src/Behat/MinkExtension/Context/', $force = true)
+            ->run();
+
+        //Temporary -- Function to move context from src/Temporary_Context --
+        $this->taskFileSystemStack()
+            ->copy('vendor/saucey/framework/src/Behatch/*', 'vendor/behatch/contexts/src/Context/', $force = true)
             ->run();
 
         //View saucey introduction
@@ -120,7 +135,7 @@ class RoboFile extends \Robo\Tasks
     /**
      * Kills Selenium at default http://localhost:4444/wd/hub/static/resource/hub.html
      */
-    public function seleniumKill()
+    public function seleniumStop()
     {
         //Kills Selenium
         $this->taskExec("open http://localhost:4444/selenium-server/driver/?cmd=shutDownSeleniumServer")
@@ -147,7 +162,6 @@ class RoboFile extends \Robo\Tasks
      * @internal param string $folder
      * @internal param string $project
      * @internal param string $feature
-     * @internal param string $robo
      */
     public function sauceyBundle()
     {
@@ -163,39 +177,15 @@ class RoboFile extends \Robo\Tasks
          * @var string $feature
          */
         $feature = $this->ask("What is the name of the feature file? [string]");
-        /**
-         * @var string $shortName
-         */
-        $shortName = $this->ask("What is the short name for your robo function? [string]");
 
-        //Makes directories in feature/ and touches feature file
+        //Makes directories in feature/ and  feature file
         $this->taskFileSystemStack()
             ->mkdir("./features/{$folder}")
             ->mkdir("./features/{$folder}/{$project}")
             ->mkdir("./reports/{$folder}/{$project}")
             ->touch("./features/{$folder}/{$project}/{$feature}.feature")
             ->run();
-        //Copies over Reporting/Run scripts
-        $this->taskExec("sleep 10 && cp -R ./config/ ./features/{$folder}/{$project}/")
-            ->run();
 
-        //Removes Services
-        $this->taskExec("rm -rf ./features/{$folder}/{$project}/service.json")
-            ->run();
-
-        //Replaces items in Reporting.php
-        $this->taskReplaceInFile("./features/{$folder}/{$project}/Reporting.php")
-            ->from('project')
-            ->to($project)
-            ->from('feature')
-            ->to($feature)
-            ->run();
-
-        //Replaces items in Run.sh
-        $this->taskReplaceInFile("./features/{$folder}/{$project}/Run.sh")
-            ->from('function')
-            ->to($shortName)
-            ->run();
     }
 
     /**

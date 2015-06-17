@@ -20,7 +20,7 @@ Temporary Items
 .apdisk
 composer.phar
 composer.lock
-#vendor/ Commiting this temporarily
+vendor/
 bin/
 behat.yml
 *.iml
@@ -30,7 +30,6 @@ behat.yml
 var/
 reports/*
 sauce_connect.log
-*.iml
 *.ipr
 *.iws
 out/
