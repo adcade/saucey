@@ -84,11 +84,11 @@ class RoboFile extends \Robo\Tasks
             ->run();
 
         //Temporary -- Function to move context from src/Temporary_Context -- MinkContext.php
-        $this->taskCopyDir(['vendor/saucey/framework/src/Behat/Context' => 'vendor/behat/mink-extension/src/Behat/MinkExtension/Context'])
+        $this->taskCopyDir(['./vendor/saucey/framework/src/Behat/Context' => 'vendor/behat/mink-extension/src/Behat/MinkExtension/Context'])
             ->run();
 
         //Temporary -- Function to move context from src/Temporary_Context -- Behatch context/
-        $this->taskCopyDir(['vendor/saucey/framework/src/Behatch' => 'vendor/behatch/contexts/src/Context'])
+        $this->taskCopyDir(['./vendor/saucey/framework/src/Behatch' => 'vendor/behatch/contexts/src/Context'])
             ->run();
 
         //View saucey introduction
