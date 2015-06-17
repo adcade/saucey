@@ -38,11 +38,11 @@ class RoboFile extends \Robo\Tasks
     public function init()
     {
         //Install the dependancies/requirements through composer
-        $this->taskComposerInstall('./composer.phar')
+        $this->taskComposerInstall('/usr/local/bin/composer')
             ->run();
 
         //Update the dependancies/requirements through composer
-        $this->taskComposerUpdate('./composer.phar')
+        $this->taskComposerUpdate('/usr/local/bin/composer')
             ->run();
 
         //Install Wienre globally via npm
@@ -55,7 +55,7 @@ class RoboFile extends \Robo\Tasks
 
         //.BASH_PROFILE adjustments
         //Add t as alias to .bash_profile
-        $this->taskExec('echo "alias t=\'python ~/Sites/saucey/vendor/saucey/framework/var/tasks/t/t.py --task-dir ~/Sites/saucey/var/tasks --list tasks\'" >> ~/.bash_profile')
+        $this->taskExec('echo "alias t="python ~/Sites/saucey/vendor/saucey/framework/var/tasks/t/t.py --task-dir ~/Sites/saucey/var/tasks --list tasks" >> ~/.bash_profile')
             ->run();
 
         //Source .bash_profile
