@@ -87,6 +87,11 @@ class RoboFile extends \Robo\Tasks
             ->mkdir('reports')
             ->mkdir('screenshots')
             ->mkdir('var/tasks')
+            ->mkdir('docs')
+            ->run();
+
+        //pull all documentation files
+        $this->taskExec('cd ./docs && git clone https://github.com/getsaucey/saucey-docs.git')
             ->run();
 
         //Pull develop and master
@@ -354,10 +359,6 @@ class RoboFile extends \Robo\Tasks
      */
     public function sauceyDocs()
     {
-        //pull all documentation files
-        $this->taskExec('cd ./docs/ && git clone https://github.com/getsaucey/saucey-docs.git')
-            ->run();
-
         //change directory and serve
         $this->taskExec('cd ./docs/saucey-docs/ && mkdocs serve')
             ->run();
