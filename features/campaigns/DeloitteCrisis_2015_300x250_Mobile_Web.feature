@@ -15,7 +15,6 @@ Feature: Deloitte Crisis 2015
     And I wait for 3 seconds
 
 
-
   @javascript @DeloitteCrisis_2015_300x250_Metrics
   Scenario: Deloitte Crisis 2015 300x250 Mobile Web Metrics
     Given I am on "http://127.0.0.1:7890/client/#anonymous"

@@ -45,6 +45,18 @@ class RoboFile extends \Robo\Tasks
         $this->taskComposerUpdate('/usr/local/bin/composer')
             ->run();
 
+        //Curl pip in ~/
+        $this->taskExec('curl -o ~/get-pip.py https://bootstrap.pypa.io/get-pip.py')
+            ->run();
+
+        //Install pip via ~/get-pip.py
+        $this->taskExec('sudo python ~/get-pip.py')
+            ->run();
+
+        //Install mkdocs
+        $this->taskExec('pip install mkdocs')
+            ->run();
+
         //Install Wienre globally via npm
         $this->taskExec('sudo npm -g install weinre')
             ->run();
@@ -338,6 +350,17 @@ class RoboFile extends \Robo\Tasks
     }
 
     /**
+     * Hosts and opens local instance documentation
+     */
+    public function sauceyDocs()
+    {
+        //Copy over development yaml
+        $this->taskExec('cd ./docs/saucey-docs/ && mkdocs serve')
+            ->run();
+
+    }
+
+    /**
      * Connects instance of sauce_connect to SauceLabs API, requires api_key and username
      *
      * @internal param string $un
@@ -410,17 +433,15 @@ class RoboFile extends \Robo\Tasks
             ->run();
     }
 
-    # ADCADE TASKS
-
     /**
-     * Tests against campaign: tor_fragrance_2015
+     * Tests against saucey
      */
-    public function adcadeCampaign()
+    public function sauceyTest()
     {
         // Tests Metrics by testing the app locally and verifying metrics locally
         $this->taskParallelExec()
-            ->process('./bin/behat --tags "@Regression_TOR_Fragrance_APR15"')
-            ->process('./bin/behat --tags "@Regression_TOR_Fragrance_APR15_Metrics" -p local_chrome')
+            ->process('./bin/behat --tags "@saucey"')
+            ->process('./bin/behat --tags "@sauceyMetrics" -p local_chrome')
             ->printed(true)
             ->run();
 
@@ -472,119 +493,4 @@ class RoboFile extends \Robo\Tasks
             ->run();
     }
 
-    /**
-     * Tests against ADSCR-726, tnbr_pushdown_marquee
-     */
-    public function adcadeADSCR726()
-    {
-        // Tests Metrics by testing the app locally and verifying metrics locally
-        $this->taskParallelExec()
-            ->process('./bin/behat --tags "@ADSCR_726_Desktop" -p local_chrome && sleep 3')
-            ->process('./bin/behat --tags "@ADSCR_726_Desktop_Metrics" -p local_chrome')
-            ->printed(true)
-            ->run();
-
-        // Moves file over and renames with timestamp
-        $this->taskExec('php ./features/adcade/ADSCR_726/Reporting.php')
-            ->run();
-    }
-
-    /**
-     * Runs ADSCR-726 suite +10,000 times
-     */
-    public function adcadeADSCR726Overdose()
-    {
-        // Runs overdose.sh for ADSCR_726
-        $this->taskExec('sh ./features/adcade/ADSCR_726/Run.sh')
-            ->printed(true)
-            ->run();
-    }
-
-    /**
-     * Tests HelpCenter against local browsers
-     */
-    public function adcadeHelpCenterLocal()
-    {
-        // Tests HelpCenter Locally
-        $this->taskExec('./bin/behat --suite=help_center')
-            ->printed(true)
-            ->run();
-
-        // Moves Report
-        $this->taskExec('php ./features/adcade/Help_Center/Reporting.php')
-            ->run();
-    }
-
-    /**
-     * Tests HelpCenter against SauceLabs browsers and environments
-     */
-    public function adcadeHelpCenterCloud()
-    {
-        // Tests HelpCenter against Mac, Chrome
-        $this->taskExec('./bin/behat --suite=help_center -p sauce_mac_chrome')
-            ->printed(true)
-            ->run();
-
-        // Moves Report
-        $this->taskExec('php ./features/adcade/Help_Center/Reporting.php')
-            ->run();
-
-        // Tests HelpCenter against Mac, Safari
-        $this->taskExec('./bin/behat --suite=help_center -p sauce_mac_safari')
-            ->printed(true)
-            ->run();
-
-        // Moves Report
-        $this->taskExec('php ./features/adcade/Help_Center/Reporting.php')
-            ->run();
-
-        // Tests HelpCenter against Windows, IE9
-        $this->taskExec('./bin/behat --suite=help_center -p sauce_windows_ie9')
-            ->printed(true)
-            ->run();
-
-        // Moves Report
-        $this->taskExec('php ./features/adcade/Help_Center/Reporting.php')
-            ->run();
-
-        // Tests HelpCenter against Windows, Firefox
-        $this->taskExec('./bin/behat --suite=help_center -p sauce_windows_firefox')
-            ->printed(true)
-            ->run();
-
-        // Moves Report
-        $this->taskExec('php ./features/adcade/Help_Center/Reporting.php')
-            ->run();
-
-        // Tests HelpCenter against iOS, Safari, Landscape
-        $this->taskExec('./bin/behat --suite=help_center -p sauce_ios_tablet_landscape')
-            ->printed(true)
-            ->run();
-
-        // Moves Report
-        $this->taskExec('php ./features/adcade/Help_Center/Reporting.php')
-            ->run();
-
-        // Tests HelpCenter against Android, Native, Landscape
-        $this->taskExec('./bin/behat --suite=help_center -p sauce_android_tablet_landscape')
-            ->printed(true)
-            ->run();
-
-        // Moves Report
-        $this->taskExec('php ./features/adcade/Help_Center/Reporting.php')
-            ->run();
-    }
-
-    /**
-     * Tests against ADSCR-726, tnbr_pushdown_marquee
-     */
-    public function adcadeDeloitteCrisis2015()
-    {
-        // Tests Metrics by testing the app locally and verifying metrics locally
-        $this->taskParallelExec()
-            ->process('./bin/behat --tags "@DeloitteCrisis_2015_300x250"')
-            ->process('./bin/behat --tags "@DeloitteCrisis_2015_300x250_Metrics" -p local_chrome')
-            ->printed(true)
-            ->run();
-    }
 }

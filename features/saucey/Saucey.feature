@@ -21,7 +21,7 @@ Feature: Testing browser functionality
     And I switch to iframe "prefinery_signup1"
     And I fill in "tester_profile_email" with "sajjad@adcade.com"
     And I switch to main frame
-    Then I should be on "https://www.adcade.com/#epoch-features"
+    Then I should be on "https://www.adcade.com/#epoch-workflow"
 
   @saucey @javascript @browser @disabledButtons @enabledButtons
   Scenario: Test some cool browser functionality, specifically button states
