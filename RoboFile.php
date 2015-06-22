@@ -354,10 +354,13 @@ class RoboFile extends \Robo\Tasks
      */
     public function sauceyDocs()
     {
-        //Copy over development yaml
-        $this->taskExec('cd ./docs/saucey-docs/ && mkdocs serve')
+        //pull all documentation files
+        $this->taskExec('cd ./docs/ && git clone https://github.com/getsaucey/saucey-docs.git')
             ->run();
 
+        //change directory and serve
+        $this->taskExec('cd ./docs/saucey-docs/ && mkdocs serve')
+            ->run();
     }
 
     /**
