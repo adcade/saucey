@@ -70,12 +70,6 @@ class RoboFile extends \Robo\Tasks
         $this->taskExec('cp -R ./vendor/saucey/framework/bin/* ./bin/')
             ->run();
 
-        //Pull develop and master
-        $this->taskGitStack()
-            ->pull('origin', 'master')
-            ->pull('origin', 'develop')
-            ->run();
-
         //Make directory for reports, screenshots and tasks
         $this->taskFileSystemStack()
             ->mkdir('reports')
@@ -83,12 +77,18 @@ class RoboFile extends \Robo\Tasks
             ->mkdir('var/tasks')
             ->run();
 
+        //Pull develop and master
+        $this->taskGitStack()
+            ->pull('origin', 'master')
+            ->pull('origin', 'develop')
+            ->run();
+
         //Temporary -- Function to move context from src/Temporary_Context -- MinkContext.php
         $this->taskExec('cp -R ./vendor/saucey/framework/src/Behat/Context ./vendor/behat/mink-extension/src/Behat/MinkExtension')
             ->run();
 
         //Temporary -- Function to move context from src/Temporary_Context -- MinkContext.php
-        $this->taskExec('cp -R ./vendor/saucey/framework/src/Behatch ./vendor/behatch/contexts/src')
+        $this->taskExec('cp -R ./vendor/saucey/framework/src/Behatch/* ./vendor/behatch/contexts/src/Context')
             ->run();
 
         //View saucey introduction
