@@ -54,7 +54,7 @@ class RoboFile extends \Robo\Tasks
             ->run();
 
         //Install mkdocs
-        $this->taskExec('pip install mkdocs')
+        $this->taskExec('sudo pip install mkdocs')
             ->run();
 
         //Install Wienre globally via npm
