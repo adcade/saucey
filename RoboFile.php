@@ -55,7 +55,7 @@ class RoboFile extends \Robo\Tasks
 
         //.BASH_PROFILE adjustments
         //Add t as alias to .bash_profile
-        $this->taskExec('echo "alias t="python ~/Sites/saucey/vendor/saucey/framework/var/tasks/t/t.py --task-dir ~/Sites/saucey/var/tasks --list tasks" >> ~/.bash_profile')
+        $this->taskExec('printf "\nalias t=\'python ~/Sites/saucey/vendor/saucey/framework/var/tasks/t/t.py --task-dir ~/Sites/saucey/var/tasks --list tasks\' \n" >> ~/.bash_profile')
             ->run();
 
         //Source .bash_profile
@@ -84,11 +84,11 @@ class RoboFile extends \Robo\Tasks
             ->run();
 
         //Temporary -- Function to move context from src/Temporary_Context -- MinkContext.php
-        $this->taskCopyDir(['./vendor/saucey/framework/src/Behat/Context' => 'vendor/behat/mink-extension/src/Behat/MinkExtension/Context'])
+        $this->taskExec('cp -R ./vendor/saucey/framework/src/Behat/Context ./vendor/behat/mink-extension/src/Behat/MinkExtension')
             ->run();
 
-        //Temporary -- Function to move context from src/Temporary_Context -- Behatch context/
-        $this->taskCopyDir(['./vendor/saucey/framework/src/Behatch' => 'vendor/behatch/contexts/src/Context'])
+        //Temporary -- Function to move context from src/Temporary_Context -- MinkContext.php
+        $this->taskExec('cp -R ./vendor/saucey/framework/src/Behatch ./vendor/behatch/contexts/src')
             ->run();
 
         //View saucey introduction
@@ -102,7 +102,7 @@ class RoboFile extends \Robo\Tasks
     public function update()
     {
         //Update the dependancies/requirements through composer
-        $this->taskComposerUpdate('./composer.phar')
+        $this->taskComposerUpdate('/usr/local/bin/composer')
             ->run();
 
     }
