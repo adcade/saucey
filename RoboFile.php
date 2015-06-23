@@ -437,6 +437,8 @@ class RoboFile extends \Robo\Tasks
             ->run();
     }
 
+    //Saucey specific functions
+
     /**
      * Tests against saucey
      */
@@ -445,56 +447,38 @@ class RoboFile extends \Robo\Tasks
         // Tests Metrics by testing the app locally and verifying metrics locally
         $this->taskParallelExec()
             ->process('./bin/behat --tags "@saucey"')
-            ->process('./bin/behat --tags "@sauceyMetrics" -p local_chrome')
-            ->printed(true)
-            ->run();
-
-        // Tests against ie8 for Backup image
-        $this->taskExec('./bin/behat --tags "@IE_Backup_TOR_Fragrance_APR15" -p sauce_windows_ie8')
-            ->printed(true)
-            ->run();
-
-        // Tests against Windows Chrome
-        $this->taskExec('./bin/behat --tags "@Compatibility_TOR_Fragrance_APR15" -p sauce_windows_chrome')
-            ->printed(true)
-            ->run();
-
-        // Tests against i
-        $this->taskExec('./bin/behat --tags "@IE_Backup_TOR_Fragrance_APR15" -p sauce_windows_ie8')
-            ->printed(true)
-            ->run();
-
-        $this->taskExec('./bin/behat --tags "@Compatibility_TOR_Fragrance_APR15" -p sauce_windows_chrome')
-            ->printed(true)
-            ->run();
-
-        $this->taskExec('./bin/behat --tags "@Compatibility_TOR_Fragrance_APR15" -p sauce_windows_firefox')
-            ->printed(true)
-            ->run();
-
-        $this->taskExec('./bin/behat --tags "@Compatibility_TOR_Fragrance_APR15" -p sauce_mac_safari')
-            ->printed(true)
-            ->run();
-
-        $this->taskExec('./bin/behat --tags "@Compatibility_TOR_Fragrance_APR15" -p sauce_mac_chrome')
-            ->printed(true)
-            ->run();
-
-        $this->taskExec('./bin/behat --tags "@TOR_Fragrance_1032x1100_Tablet" -p sauce_ios_tablet_landscape')
-            ->printed(true)
-            ->run();
-
-        $this->taskExec('./bin/behat --tags "@TOR_Fragrance_1032x1100_Tablet" -p sauce_android_tablet_landscape')
-            ->printed(true)
-            ->run();
-
-        $this->taskExec('./bin/behat --tags "@TOR_Fragrance_1032x1100_Tablet" -p sauce_ios_tablet')
-            ->printed(true)
-            ->run();
-
-        $this->taskExec('./bin/behat --tags "@TOR_Fragrance_1032x1100_Tablet" -p sauce_android_tablet')
+            ->process('./bin/behat --tags "@saucey" -p sauce_windows_ie8')
+            ->process('./bin/behat --tags "@saucey" -p sauce_windows_chrome')
+            ->process('./bin/behat --tags "@saucey" -p sauce_windows_firefox')
+            ->process('./bin/behat --tags "@saucey" -p sauce_mac_safari')
+            ->process('./bin/behat --tags "@saucey" -p sauce_mac_chrome')
+            ->process('./bin/behat --tags "@saucey" -p sauce_ios_tablet_landscape')
+            ->process('./bin/behat --tags "@saucey" -p sauce_android_tablet_landscape')
+            ->process('./bin/behat --tags "@saucey" -p sauce_ios_tablet')
+            ->process('./bin/behat --tags "@saucey" -p sauce_android_tablet')
+            ->process('./bin/behat --tags "@saucey" -p sauce_windows_chrome')
             ->printed(true)
             ->run();
     }
+
+    //Campaign specific functions
+
+    /**
+     * Tests against campaigns
+     */
+    public function campaignDC2015300250()
+    {
+        // Tests Metrics by testing the app locally and verifying metrics locally
+        $this->taskParallelExec()
+            ->process('./bin/behat --tags "@DeloitteCrisis_2015_300x250"')
+            ->process('./bin/behat --tags "@DeloitteCrisis_2015_300x250_Metrics" -p local_chrome')
+            ->process('./bin/behat --tags "@DeloitteCrisis_2015_300x250_IE8" -p local_chrome')
+            ->process('./bin/behat --tags "@DeloitteCrisis_2015_300x250" -p local_chrome')
+            ->process('./bin/behat --tags "@DeloitteCrisis_2015_300x250_Metrics" -p local_chrome')
+            ->printed(true)
+            ->run();
+
+    }
+
 
 }

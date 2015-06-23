@@ -10,10 +10,38 @@ Feature: Deloitte Crisis 2015
     And I set my browser window size to "2800" x "1800"
     And I wait 3 seconds for "body" element
     And I wait for 7 seconds
-    #Move Left
-    When I tap "540" x "280" coordinates
-    And I wait for 3 seconds
+    #Move left
+    When I tap "860" x "270" coordinates
+    #When I tap "540" x "280" coordinates
+    And I wait for 1 seconds
+    #Move left
+    And I tap "860" x "270" coordinates
+    #And I tap "540" x "280" coordinates
+    And I wait for 1 seconds
+    #Play video
+    And I tap "960" x "200" coordinates
+    And I wait for 30 seconds
+    #Reveal and close disclaimer
+    And I tap "1079" x "350" coordinates
+    And I wait for 2 seconds
+    And I tap "1079" x "350" coordinates
+    And I wait for 2 seconds
+    #Drag left
+    And I initiate drag at "840" x "300" coordinates
+    And I release drag at "900" x "300" coordinates
+    #Drag right
+    And I initiate drag at "1060" x "300" coordinates
+    And I release drag at "1000" x "300" coordinates
 
+  @javascript @DeloitteCrisis_2015_300x250_IE8
+  Scenario: Deloitte Crisis 2015 300x250 Mobile Web
+    Given I am on "http://demo.adcade.com/xaxis/bcbs/lets_talk_cost/300x250_mobile_app/index.html"
+    Then the response should contain "http://ad-prod.adcade.com/2/backup/imp/XAXLTJ15APPBCBS300250MWV/pl/0/key/ie8/"
+
+  @javascript @DeloitteCrisis_2015_300x250_IE8
+  Scenario: Deloitte Crisis 2015 300x250 Mobile Web
+    Given I am on "http://demo.adcade.com/xaxis/bcbs/lets_talk_cost/300x250_mobile_app/index.html"
+    Then the response should contain "http://ad-prod.adcade.com/2/backup/imp/XAXLTJ15APPBCBS300250MWV/pl/0/key/ie8/"
 
   @javascript @DeloitteCrisis_2015_300x250_Metrics
   Scenario: Deloitte Crisis 2015 300x250 Mobile Web Metrics
