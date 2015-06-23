@@ -38,11 +38,6 @@ Feature: Deloitte Crisis 2015
     Given I am on "http://demo.adcade.com/xaxis/bcbs/lets_talk_cost/300x250_mobile_app/index.html"
     Then the response should contain "http://ad-prod.adcade.com/2/backup/imp/XAXLTJ15APPBCBS300250MWV/pl/0/key/ie8/"
 
-  @javascript @DeloitteCrisis_2015_300x250_IE8
-  Scenario: Deloitte Crisis 2015 300x250 Mobile Web
-    Given I am on "http://demo.adcade.com/xaxis/bcbs/lets_talk_cost/300x250_mobile_app/index.html"
-    Then the response should contain "http://ad-prod.adcade.com/2/backup/imp/XAXLTJ15APPBCBS300250MWV/pl/0/key/ie8/"
-
   @javascript @DeloitteCrisis_2015_300x250_Metrics
   Scenario: Deloitte Crisis 2015 300x250 Mobile Web Metrics
     Given I am on "http://127.0.0.1:7890/client/#anonymous"

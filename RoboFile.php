@@ -472,9 +472,6 @@ class RoboFile extends \Robo\Tasks
         $this->taskParallelExec()
             ->process('./bin/behat --tags "@DeloitteCrisis_2015_300x250"')
             ->process('./bin/behat --tags "@DeloitteCrisis_2015_300x250_Metrics" -p local_chrome')
-            ->process('./bin/behat --tags "@DeloitteCrisis_2015_300x250_IE8" -p local_chrome')
-            ->process('./bin/behat --tags "@DeloitteCrisis_2015_300x250" -p local_chrome')
-            ->process('./bin/behat --tags "@DeloitteCrisis_2015_300x250_Metrics" -p local_chrome')
             ->printed(true)
             ->run();
 
