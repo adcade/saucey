@@ -444,20 +444,8 @@ class RoboFile extends \Robo\Tasks
      */
     public function sauceyTest()
     {
-        // Tests Metrics by testing the app locally and verifying metrics locally
-        $this->taskParallelExec()
-            ->process('./bin/behat --tags "@saucey"')
-            ->process('./bin/behat --tags "@saucey" -p sauce_windows_ie8')
-            ->process('./bin/behat --tags "@saucey" -p sauce_windows_chrome')
-            ->process('./bin/behat --tags "@saucey" -p sauce_windows_firefox')
-            ->process('./bin/behat --tags "@saucey" -p sauce_mac_safari')
-            ->process('./bin/behat --tags "@saucey" -p sauce_mac_chrome')
-            ->process('./bin/behat --tags "@saucey" -p sauce_ios_tablet_landscape')
-            ->process('./bin/behat --tags "@saucey" -p sauce_android_tablet_landscape')
-            ->process('./bin/behat --tags "@saucey" -p sauce_ios_tablet')
-            ->process('./bin/behat --tags "@saucey" -p sauce_android_tablet')
-            ->process('./bin/behat --tags "@saucey" -p sauce_windows_chrome')
-            ->printed(true)
+        // Tests the entire saucey suite via feature/saucey/saucey.feature
+        $this->taskExec('./bin/behat --tags "@saucey"')
             ->run();
     }
 
@@ -468,11 +456,15 @@ class RoboFile extends \Robo\Tasks
      */
     public function campaignDC2015300250()
     {
-        // Tests Metrics by testing the app locally and verifying metrics locally
+        //Test ad unit and metrics for said unit
         $this->taskParallelExec()
             ->process('./bin/behat --tags "@DeloitteCrisis_2015_300x250"')
             ->process('./bin/behat --tags "@DeloitteCrisis_2015_300x250_Metrics" -p local_chrome')
             ->printed(true)
+            ->run();
+
+        //Test unit in IE8 environment
+        $this->taskExec('./bin/behat --tags "@DeloitteCrisis_2015_300x250_IE8" -p sauce_windows_ie8')
             ->run();
 
     }
