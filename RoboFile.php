@@ -452,7 +452,7 @@ class RoboFile extends \Robo\Tasks
     //Campaign specific functions
 
     /**
-     * Tests against campaigns
+     * Tests against DeloitteCrisis_2015_300x250
      */
     public function campaignDC2015300250()
     {
@@ -469,5 +469,22 @@ class RoboFile extends \Robo\Tasks
 
     }
 
+    /**
+     * Tests against R29_Biossance_640x480_Interstitial
+     */
+    public function campaignR29B649480()
+    {
+        //Test ad unit and metrics for said unit
+        $this->taskParallelExec()
+            ->process('./bin/behat --tags "@R29_Biossance_640x480_Interstitial"')
+            ->process('./bin/behat --tags "@R29_Biossance_640x480_Interstitial_Metrics" -p local_chrome')
+            ->printed(true)
+            ->run();
+
+        //Test unit in IE8 environment
+        $this->taskExec('./bin/behat --tags "@R29_Biossance_640x480_Interstitial_IE8" -p sauce_windows_ie8')
+            ->run();
+
+    }
 
 }

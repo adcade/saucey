@@ -5,7 +5,7 @@ Feature: Deloitte Crisis 2015
   So that I can pass it
 
   @javascript @DeloitteCrisis_2015_300x250
-  Scenario: Deloitte Crisis 2015 300x250 Mobile Web
+  Scenario: Deloitte Crisis 2015 300x250 Web
     Given I am on "http://demo.adcade.com/xaxis/bcbs/lets_talk_cost/300x250_mobile_app/index.html"
     And I set my browser window size to "2800" x "1800"
     And I wait 3 seconds for "body" element
@@ -27,19 +27,19 @@ Feature: Deloitte Crisis 2015
     And I tap "1079" x "350" coordinates
     And I wait for 2 seconds
     #Drag left
-    And I initiate drag at "840" x "300" coordinates
-    And I release drag at "900" x "300" coordinates
+    #And I initiate drag at "840" x "300" coordinates
+    #And I release drag at "900" x "300" coordinates
     #Drag right
-    And I initiate drag at "1060" x "300" coordinates
-    And I release drag at "1000" x "300" coordinates
+    #And I initiate drag at "1060" x "300" coordinates
+    #And I release drag at "1000" x "300" coordinates
 
   @javascript @DeloitteCrisis_2015_300x250_IE8
-  Scenario: Deloitte Crisis 2015 300x250 Mobile Web
+  Scenario: Deloitte Crisis 2015 300x250 IE8 -- Web
     Given I am on "http://demo.adcade.com/xaxis/bcbs/lets_talk_cost/300x250_mobile_app/index.html"
     Then the response should contain "http://ad-prod.adcade.com/2/backup/imp/XAXLTJ15APPBCBS300250MWV/pl/0/key/ie8/"
 
   @javascript @DeloitteCrisis_2015_300x250_Metrics
-  Scenario: Deloitte Crisis 2015 300x250 Mobile Web Metrics
+  Scenario: Deloitte Crisis 2015 300x250 Web Metrics
     Given I am on "http://127.0.0.1:7890/client/#anonymous"
     And I go to network tab
     And I wait for 60 seconds
@@ -132,3 +132,11 @@ Feature: Deloitte Crisis 2015
     And the response should contain "std.interact.disclaimer_close"
     And the response should contain "POST"
     And the response should contain "XAXLTJ15APPBCBS300250MWV"
+
+  @javascript @test @sample
+  Scenario: Test new step definitions here
+    Given I am on "http://127.0.0.1:7890/client/#anonymous"
+    And I go to network tab
+    And I wait for 60 seconds
+    And I scroll to the top
+    And I select request 1
