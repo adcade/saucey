@@ -129,10 +129,15 @@ class RoboFile extends \Robo\Tasks
      */
     public function winery()
     {
+        //Deletes content of file after session is started/restarted
+        $this->taskExec("> ./winery.txt")
+            ->run();
+
         $host = $this->ask('What host?');
         $port = $this->ask('What port?');
-        //Starts winery (weinre) in foreground, at $host $port
-        $this->taskExec("weinre --verbose true --debug true --boundHost {$host} --httpPort {$port}")
+
+        //Starts winery (weinre) in foreground, at $host $port, saves output to log
+        $this->taskExec("weinre --verbose true --debug true --boundHost {$host} --httpPort {$port} >> ./winery.txt")
             ->run();
     }
 

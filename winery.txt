@@ -1,0 +1,19 @@
+2015-06-24T22:13:24.899Z weinre: pid:                 21564
+2015-06-24T22:13:24.901Z weinre: version:             2.0.0-pre-I0Z7U9OV
+2015-06-24T22:13:24.901Z weinre: node versions:
+2015-06-24T22:13:24.902Z weinre:    http_parser: 1.0
+2015-06-24T22:13:24.902Z weinre:    node       : 0.10.38
+2015-06-24T22:13:24.902Z weinre:    v8         : 3.14.5.9
+2015-06-24T22:13:24.902Z weinre:    ares       : 1.9.0-DEV
+2015-06-24T22:13:24.902Z weinre:    uv         : 0.10.36
+2015-06-24T22:13:24.902Z weinre:    zlib       : 1.2.8
+2015-06-24T22:13:24.902Z weinre:    modules    : 11
+2015-06-24T22:13:24.902Z weinre:    openssl    : 1.0.1m
+2015-06-24T22:13:24.902Z weinre: options:
+2015-06-24T22:13:24.902Z weinre:    httpPort:     7890
+2015-06-24T22:13:24.902Z weinre:    boundHost:    adcade.dev
+2015-06-24T22:13:24.902Z weinre:    verbose:      true
+2015-06-24T22:13:24.902Z weinre:    debug:        true
+2015-06-24T22:13:24.902Z weinre:    readTimeout:  5
+2015-06-24T22:13:24.902Z weinre:    deathTimeout: 15
+2015-06-24T22:13:24.910Z weinre: starting server at http://adcade.dev:7890
